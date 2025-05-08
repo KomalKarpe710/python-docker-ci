@@ -3,7 +3,7 @@ name: Python CI/CD
 on:
   push:
     branches:
-      - main  # Trigger on pushing to the main branch
+      - main  # Trigger the pipeline when changes are pushed to the main branch
 
 jobs:
   build:
@@ -14,7 +14,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      # Step 2: Set up Python environment (you already had this)
+      # Step 2: Set up Python environment
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
@@ -30,14 +30,16 @@ jobs:
       - name: Run app
         run: python app.py
 
-      # Step 5: Build the Docker image (new step)
+      # Step 5: Build the Docker image
       - name: Build Docker image
         run: docker build -t my-app .
 
-      # Step 6: Log in to Docker Hub (new step)
+      # Step 6: Log in to Docker Hub (using secrets to avoid interactive login)
       - name: Log in to Docker Hub
         run: echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
 
-      # Step 7: Tag and push the Docker image to Docker Hub (new step)
+      # Step 7: Tag and push the Docker image to Docker Hub
       - name: Push Docker image to Docker Hub
-        run: docker tag my-app ${{ secrets.DOCKER_USERNAME }}/my-app:latest && docker push ${{ secrets.DOCKER_USERNAME }}/my-app:latest
+        run: |
+          docker tag my-app ${{ secrets.DOCKER_USERNAME }}/my-app:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/my-app:latest
