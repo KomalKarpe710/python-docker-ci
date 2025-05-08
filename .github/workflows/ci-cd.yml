@@ -3,24 +3,41 @@ name: Python CI/CD
 on:
   push:
     branches:
-      - main
+      - main  # Trigger on pushing to the main branch
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
+      # Step 1: Checkout code from the GitHub repository
       - name: Checkout code
         uses: actions/checkout@v2
 
+      # Step 2: Set up Python environment (you already had this)
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
           python-version: 3.9
 
+      # Step 3: Install Python dependencies (flask in this case)
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install flask
 
+      # Step 4: Run your Python app (optional for testing)
       - name: Run app
         run: python app.py
+
+      # Step 5: Build the Docker image (new step)
+      - name: Build Docker image
+        run: docker build -t my-app .
+
+      # Step 6: Log in to Docker Hub (new step)
+      - name: Log in to Docker Hub
+        run: echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+
+      # Step 7: Tag and push the Docker image to Docker Hub (new step)
+      - name: Push Docker image to Docker Hub
+        run: docker tag my-app ${{ secrets.DOCKER_USERNAME }}/my-app:latest && docker push ${{ secrets.DOCKER_USERNAME }}/my-app:latest
